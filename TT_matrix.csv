@@ -1,20 +1,20 @@
-Animal.sp,common_name,guild,bodymass,water_dependence,digestion
-1,Wildebeest,grazer,163,41.98,ruminant
-2,Zebra,grazer,212.5,62.13,nonruminant
-3,Thomson's gazelle,grazer,16.2,14.05,ruminant
-4,Grant's gazelle,browser,42.5,19.12,ruminant
-5,Topi,grazer,109,32.03,ruminant
-6,Kongoni,grazer,126.2,36.11,ruminant
-7,Impala,mixed,40,31.41,ruminant
-8,Waterbuck,grazer,186,59.79,ruminant
-9,Warthog,grazer,56.5,59.62,nonruminant
-10,Buffalo,grazer,446.6,58.45,ruminant
-11,Giraffe,browser,828.4,43.67,ruminant
-12,Elephant,mixed,2850,71.85,nonruminant
-13,Eland,mixed,344,44.57,ruminant
-16,Reedbuck,grazer,48,45.55,ruminant
-17,Klipspringer,mixed,13.2,35.66,ruminant
-18,Dikdik ,browser,5.17,3.73,ruminant
-21,Hippopotamous,grazer,1385,92.35,nonruminant
-22,Rhinoceros,browser,1050,77.23,nonruminant
-23,Bushbuck,browser,28,52.38,ruminant
+Animal.sp,common_name,guild,bodymass,water_dependence
+1,Wildebeest,grazer,163,41.98
+2,Zebra,grazer,212.5,62.13
+3,Thomson's gazelle,grazer,16.2,14.05
+4,Grant's gazelle,browser,42.5,19.12
+5,Topi,grazer,109,32.03
+6,Kongoni,grazer,126.2,36.11
+7,Impala,mixed,40,31.41
+8,Waterbuck,grazer,186,59.79
+9,Warthog,grazer,56.5,59.62
+10,Buffalo,grazer,446.6,58.45
+11,Giraffe,browser,828.4,43.67
+12,Elephant,mixed,2850,71.85
+13,Eland,mixed,344,44.57
+14,Reedbuck,grazer,48,45.55
+15,Klipspringer,mixed,13.2,35.66
+16,Dikdik ,browser,5.17,3.73
+17,Hippopotamous,grazer,1385,92.35
+18,Rhinoceros,browser,1050,77.23
+19,Bushbuck,browser,28,52.38

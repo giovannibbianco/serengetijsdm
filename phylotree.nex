@@ -1,0 +1,6 @@
+#nexus
+
+begin trees;
+tree the_tree = (Loxodonta_africana:0.0907822, (((Phacochoerus_africanus:0.110285, (Equus_burchellii:0.0953363, Diceros_bicornis:0.080845):0.018282):0.00486353, Hippopotamus_amphibius:0.111493):0.00661158, (((Syncerus_caffer:0.0739549, (Tragelaphus_oryx:0.0462508, Tragelaphus_scriptus:0.0511123):0.0280066):0.00136268, Giraffa_camelopardalis:0.093192):0.00378778, ((Oreotragus_oreotragus:0.0805904, Aepyceros_melampus:0.0889635):0.00221068, (((Kobus_ellipsiprymnus_defassa:0.0634876, Redunca_redunca:0.0602097):0.014872, ((Eudorcas_thomsonii:0.0476485, Nanger_granti:0.0566468):0.0136218, Madoqua_kirkii:0.0801171):0.00863333):0.00228822, (Connochaetes_taurinus:0.0577068, (Alcelaphus_buselaphus:0.05068, Damaliscus_lunatus:0.0546241):0.00871197):0.0177075):0.00200953):0.00667082):0.020602):0.0907822);
+
+end;
