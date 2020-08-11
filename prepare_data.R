@@ -85,11 +85,35 @@ C
 p<-c(0.621,0.698,0.624,0.779,0.796,0.791,0.637,0.85,0.803,0.677,0.608,0.6,0.706,0.92,0.72,0.463,0.732,1,1)
 
 # model parameters
-n_sites<-dim(X)[1]
+n_sites<-dim(X)[1] #338 sites
 n_sp<-dim(C)[1]
-n_pars<-ncol(X)
+n_pars<-ncol(X) # 11 parameters including intercept
+n_dates<-ncol(rain)
 
+# 
 
+stan.data <- list(
+  n_obs = dim(obs)[1],
+  n_dates = n_dates,
+  n_tcov = 1,
+  area = rep(1.0, n_sites),
+  n_sites = n_sites,
+  site = as.integer(obs$poly.id),
+  K = dim(X)[2], 
+  X = X,
+  Xt = # we should add also ndvi
+  date = as.integer(obs$Month),
+  n_max = rep(50, n_sp),
+  n_s = as.integer(n_sp),
+  n_t = #,
+  TT = #,
+  C = C,
+  ones = numeric(n_sp) + 1,
+  sp = as.integer(obs$Animal.sp),
+  p_obs = p
+)
+
+pars <- c( "b_m", "rho",  "Sigma", "z", "Z")
 
 
 
