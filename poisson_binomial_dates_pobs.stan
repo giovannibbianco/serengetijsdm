@@ -96,7 +96,7 @@ model {
   real log_lambda[n_sites, n_s, n_dates];
   int Ymax[n_sites, n_s, n_dates];
   // priors
-  // p ~ beta(2,2);
+  for(i in 1:n_s) p[i] ~ beta(a[i],b[i]);
   Omega ~ lkj_corr(2);
   tau ~ student_t(3,0,10); // cauchy(0, 2.5); // lognormal()
   betas ~ multi_normal(m, S);
@@ -124,7 +124,7 @@ model {
         vector[Ymax[n,s,d] - Y[n,s,d] + 1] lp;
         for (j in 1:(Ymax[n,s,d]  - Y[n,s,d] + 1)){
           lp[j] = poisson_log_lpmf(Y[n,s,d] + j - 1 | log_lambda[n,s,d]) 
-          + binomial_lpmf(Y[n,s,d] | Y[n,s,d] + j - 1, p_obs[s]);
+          + binomial_lpmf(Y[n,s,d] | Y[n,s,d] + j - 1, p[s]);
           }
           target += log_sum_exp(lp);
       }
