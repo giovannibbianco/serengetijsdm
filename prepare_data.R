@@ -73,7 +73,7 @@ for(i in 1:ncol(CC)){
 C
 
 # detection probabilities 
-p<-c(0.621,0.698,0.624,0.779,0.796,0.791,0.637,0.85,0.803,0.677,0.608,0.6,0.706,0.92,0.72,0.463,0.732,1,1)
+p<-c(0.621,0.698,0.624,0.779,0.796,0.791,0.637,0.85,0.803,0.677,0.608,0.6,0.706,0.92,0.72,0.463,0.732,.6,.6)
 
 # model parameters
 n_sites<-dim(X)[1] #338 sites
@@ -95,7 +95,7 @@ stan.data <- list(
   Xt1 = ndvi, # we should add also ndvi
   Xt2 = rain,
   date = as.integer(obs$Month),
-  n_max = rep(30, n_sp),
+  n_max = rep(50, n_sp),
   n_s = as.integer(n_sp),
   n_t =  dim(Traits)[2],
   TT = Traits,
@@ -108,8 +108,8 @@ stan.data <- list(
 pars <- c( "b_m", "rho",  "Sigma", "z", "Z")
 
 
-init_f <- function () list(b_m = matrix(0, n_sp, n_pars+2),
-                           m = numeric(n_sp * (n_pars+2)))
+init_f <- function () list(b_m = matrix(0, n_sp, n_pars+2))
+
 library(rstan)
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
@@ -121,4 +121,11 @@ fit <- stan(file = 'poisson_binomial_dates_pobs.stan',
             iter = 100, thin = 1, chains = 1)
 
 
+Y = matrix(NA, n_sites, n_sp)
+for(i in 1:n_sites){
+  for(j in 1:n_sp){
+    tmp = which(obs$Animal.sp == j & obs$poly.id == i)
+    Y[i,j] = length(tmp)
+  }
+}
 

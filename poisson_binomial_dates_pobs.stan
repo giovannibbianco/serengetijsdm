@@ -54,7 +54,8 @@ data {
 }
 
 transformed data {
-  
+  real<lower=0> a[n_s];
+  real<lower=0> b[n_s];
   int<lower=0> Y[n_sites, n_s, n_dates]; // total spp by site and date
   
   for(i in 1:n_sites){
@@ -68,6 +69,9 @@ transformed data {
   for(i in 1:n_obs){
     Y[site[i], sp[i], date[i]] += 1;
   }
+  
+  for(i in 1:n_s) a[i] = ((1-p_obs[i])/0.000625 - 1/p_obs[i]) * p_obs[i]^2;
+  for(j in 1:n_s) b[j] = a[j] * (1/p_obs[j] - 1);
 }
 
 
@@ -106,8 +110,8 @@ model {
     for(s in 1:n_s){
       for(d in 1:n_dates){
         log_lambda[n,s,d] = dot_product( X[n,] , b_m[s,1:K]) 
-        + Xt1[n,d]*b_m[s,K+1]
-        + Xt2[n,d]*b_m[s,K+2]
+        + Xt1[n,d]*b_m[s,K+1] 
+        + Xt2[n,d]*b_m[s,K+2] 
         + log(area[n]);
         Ymax[n,s,d] = Y[n,s,d] + qpois(0.999, exp(log_lambda[n,s,d])*(1-p_obs[s]), Y[n,s,d]+n_max[s]);
       }
@@ -136,13 +140,13 @@ generated quantities{
     for(s in 1:n_s){
       for(d in 1:n_dates){
         N[n,s,d]= poisson_log_rng(dot_product( X[n,] , b_m[s,1:K]) 
-        + Xt1[n,d]*b_m[s,K+1]
-        + Xt2[n,d]*b_m[s,K+2]
+        + Xt1[n,d]*b_m[s,K+1] 
+        + Xt2[n,d]*b_m[s,K+2] 
         + log(area[n]));
       }
     }
   }
-
+  
   for(s in 1:n_s){
     for(d in 1:n_dates){
       D[s,d] = sum(N[,s,d])/sum(area);
