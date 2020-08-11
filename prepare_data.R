@@ -81,3 +81,15 @@ for(i in 1:ncol(CC)){
 
 C
 
+# detection probabilities 
+p<-c(0.621,0.698,0.624,0.779,0.796,0.791,0.637,0.85,0.803,0.677,0.608,0.6,0.706,0.92,0.72,0.463,0.732,1,1)
+
+# model parameters
+n_sites<-dim(X)[1]
+n_sp<-dim(C)[1]
+n_pars<-ncol(X)
+
+
+
+
+
