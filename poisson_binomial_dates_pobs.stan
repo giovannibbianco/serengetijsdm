@@ -42,7 +42,8 @@ data {
   int<lower=1,upper=n_s> sp[n_obs];   // species id 
   int<lower=1,upper=n_sites> site[n_obs];
   matrix[n_sites, K] X;           // obs-level design matrix 
-  matrix[n_sites, n_dates] Xt;
+  matrix[n_sites, n_dates] Xt1;
+  matrix[n_sites, n_dates] Xt2;
   matrix[n_s, n_t] TT;            // species-level traits
   matrix[n_s, n_s] C;             // phylogenetic correlation matrix
   vector[n_s] ones;               // vector on 1s
@@ -105,7 +106,8 @@ model {
     for(s in 1:n_s){
       for(d in 1:n_dates){
         log_lambda[n,s,d] = dot_product( X[n,] , b_m[s,1:K]) 
-        + Xt[n,d]*b_m[s,K+n_tcov] 
+        + Xt1[n,d]*b_m[s,K+1]
+        + Xt2[n,d]*b_m[s,K+2]
         + log(area[n]);
         Ymax[n,s,d] = Y[n,s,d] + qpois(0.999, exp(log_lambda[n,s,d])*(1-p_obs[s]), Y[n,s,d]+n_max[s]);
       }
@@ -134,16 +136,16 @@ generated quantities{
     for(s in 1:n_s){
       for(d in 1:n_dates){
         N[n,s,d]= poisson_log_rng(dot_product( X[n,] , b_m[s,1:K]) 
-        + Xt[n,d]*b_m[s,K+n_tcov] 
+        + Xt1[n,d]*b_m[s,K+1]
+        + Xt2[n,d]*b_m[s,K+2]
         + log(area[n]));
       }
     }
+  }
 
   for(s in 1:n_s){
     for(d in 1:n_dates){
       D[s,d] = sum(N[,s,d])/sum(area);
     }
   } 
-
 }
-

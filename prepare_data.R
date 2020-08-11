@@ -17,14 +17,12 @@ rain<-as.matrix(read.csv("rain_matrix.csv"))
 
 # scale ndvi and rain
 for(i in 1:ncol(ndvi)){
-  ndvi[,i]<-scale(ndvi[,i])
+  ndvi[,i]<-(ndvi[,i]-mean(ndvi))/sd(ndvi)
 }
 
 for(i in 1:ncol(rain)){
-  rain[,i]<-scale(rain[,i])
+  rain[,i]<-(rain[,i]-mean(rain))/sd(rain)
 }
-
-
 
 
 # Observations
@@ -47,18 +45,11 @@ names(TT)
 TT[,1]<-1
 names(TT)[1]<-"intercept"
 
-# scale values and log mass
-TT$bodymass<-scale(log(TT$bodymass))
-TT$water_dependence<-scale(TT$water_dependence)
+TT$browser = as.numeric(TT$guild=="browser")
+TT$mix = as.numeric(TT$guild=="mixed")
 
-# recode guild as numeric
-# 0 is grazer
-# 1 is browser
-# 2 is mixed
-TT$guild<-c(0, 0, 0, 1, 0, 0, 2, 0, 0, 0, 1, 2, 2, 0, 2, 1, 0, 2, 2)
+Traits = cbind(TT[,1], scale(log(TT[,4])), scale(TT[,5]), TT[,6:7])
 
-TT<-as.matrix(TT)
-TT
 
 # Phylogeny
 library(ape)
@@ -95,18 +86,19 @@ n_dates<-ncol(rain)
 stan.data <- list(
   n_obs = dim(obs)[1],
   n_dates = n_dates,
-  n_tcov = 1,
+  n_tcov = 2,
   area = rep(1.0, n_sites),
   n_sites = n_sites,
   site = as.integer(obs$poly.id),
   K = dim(X)[2], 
   X = X,
-  Xt = # we should add also ndvi
+  Xt1 = ndvi, # we should add also ndvi
+  Xt2 = rain,
   date = as.integer(obs$Month),
-  n_max = rep(50, n_sp),
+  n_max = rep(30, n_sp),
   n_s = as.integer(n_sp),
-  n_t = #,
-  TT = #,
+  n_t =  dim(Traits)[2],
+  TT = Traits,
   C = C,
   ones = numeric(n_sp) + 1,
   sp = as.integer(obs$Animal.sp),
@@ -114,6 +106,19 @@ stan.data <- list(
 )
 
 pars <- c( "b_m", "rho",  "Sigma", "z", "Z")
+
+
+init_f <- function () list(b_m = matrix(0, n_sp, n_pars+2),
+                           m = numeric(n_sp * (n_pars+2)))
+library(rstan)
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+
+fit <- stan(file = 'poisson_binomial_dates_pobs.stan',
+            data = stan.data,
+            init = init_f,
+            pars = pars,
+            iter = 100, thin = 1, chains = 1)
 
 
 
