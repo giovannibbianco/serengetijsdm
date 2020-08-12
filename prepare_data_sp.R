@@ -110,7 +110,7 @@ stan.data <- list(
   p_obs = p[sp]
 )
 
-pars <- c( "betas", "D")
+pars <- c( "betas", "D", "p")
 
 
 fit <- stan(file = 'poisson_binomial_dates_pobs_sp.stan',
