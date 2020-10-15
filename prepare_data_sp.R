@@ -118,6 +118,11 @@ fit <- stan(file = 'poisson_binomial_dates_pobs_sp.stan',
             pars = pars,
             iter = 1000, thin = 1, chains = 3)
 
+B = extract(fit, pars = "betas")
+f = numeric(ncol(B$betas))
+for(i in 1: length(f)){
+  f[i] = length(which(sign(B$betas[,i]) == sign(mean(B$betas[,i]))))/nrow(B$betas)
+}
 
 Y = matrix(NA, n_sites, n_sp)
 for(i in 1:n_sites){
