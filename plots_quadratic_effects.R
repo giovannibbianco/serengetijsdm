@@ -203,9 +203,6 @@ par_df
 water_distances_squared<-X[,12]
 water_distances<-X[,11]
 
-gazelle_abundance=-0.62+0.56*water_distances+(-0.25*water_distances_squared)
-
-plot(gazelle_abundance~water_distances,main="Thomson's gazelle responses to distance from water")
 
 # dik dik 
 
@@ -214,7 +211,7 @@ plot(gazelle_abundance~water_distances,main="Thomson's gazelle responses to dist
 # beta for water distance squared 2.49
 
 dikdik_abundance=-5.02+(-2.45*water_distances)+2.49*water_distances_squared
-plot(dikdik_abundance~water_distances, main="Dikdik responses to distance from water")
+plot(dikdik_abundance~water_distances, main="Dikdik abundance as a function of distance from water")
 
 # impala 
 
@@ -224,7 +221,7 @@ plot(dikdik_abundance~water_distances, main="Dikdik responses to distance from w
 
 
 impala_abundance=-3.34+(-2.65*water_distances)+1.25*water_distances_squared
-plot(impala_abundance~water_distances, main="Impala responses to distance from water")
+plot(impala_abundance~water_distances, main="Impala abundance as a function of distance from water")
 
 # grant's gazelle
 
@@ -234,7 +231,7 @@ plot(impala_abundance~water_distances, main="Impala responses to distance from w
 
 grants_abundance=-2+1.49*water_distances+(-0.91*water_distances_squared)
 
-plot(grants_abundance~water_distances,main="Grant's gazelle response to distance from water")
+plot(grants_abundance~water_distances,main="Grant's gazelle abundance as a function of  distance from water")
 
 # Giraffe 
 
@@ -245,7 +242,7 @@ plot(grants_abundance~water_distances,main="Grant's gazelle response to distance
 
 giraffe_abundance=-3.31+(-1.82*water_distances)+1.65*water_distances_squared
 
-plot(giraffe_abundance~water_distances,main="Giraffe's response to distance from water")
+plot(giraffe_abundance~water_distances,main="Giraffe's abundance as a function of to distance from water")
 
 # nitrogen hotspots distance 
 
