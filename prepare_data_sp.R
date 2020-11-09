@@ -1,9 +1,7 @@
 library(rstan)
-library(cmdstanr)
-set_cmdstan_path("/Users/juanmanuelmorales/cmdstan")
 
 rstan_options(auto_write = TRUE)
-options(mc.cores = parallel::detectCores())
+options(mc.cores = parallel::detectCores()-1)
 
 
 # prepare matrices
@@ -91,6 +89,8 @@ n_dates<-ncol(rain)
 
 table(obs$Animal.sp)
 
+# Species 1 - Wildebeest
+
 sp = 1
 obssp = obs[obs$Animal.sp==sp, ]
 
@@ -124,11 +124,536 @@ for(i in 1: length(f)){
   f[i] = length(which(sign(B$betas[,i]) == sign(mean(B$betas[,i]))))/nrow(B$betas)
 }
 
-Y = matrix(NA, n_sites, n_sp)
-for(i in 1:n_sites){
-  for(j in 1:n_sp){
-    tmp = which(obs$Animal.sp == j & obs$poly.id == i)
-    Y[i,j] = length(tmp)
-  }
+fit_summary <- summary(fit)$summary 
+
+mean_b <- fit_summary[grepl("betas", rownames(fit_summary)),] # creates subset of just regression parameters
+
+
+
+
+
+
+
+
+# Zebra
+
+sp = 2
+obssp = obs[obs$Animal.sp==sp, ]
+
+stan.data <- list(
+  n_obs = dim(obssp)[1],
+  n_dates = n_dates,
+  n_tcov = 2,
+  area = rep(1.0, n_sites),
+  n_sites = n_sites,
+  site = as.integer(obssp$poly.id),
+  K = dim(X)[2], 
+  X = X,
+  Xt1 = ndvi, # we should add also ndvi
+  Xt2 = rain,
+  date = as.integer(obssp$Month),
+  n_max = 50,
+  p_obs = p[sp]
+)
+
+pars <- c( "betas", "D", "p")
+
+
+fit2 <- stan(file = 'poisson_binomial_dates_pobs_sp.stan',
+            data = stan.data,
+            pars = pars,
+            iter = 1000, thin = 1, chains = 3)
+
+
+
+fit_summary2 <- summary(fit2)$summary 
+
+mean_b2 <- fit_summary2[grepl("betas", rownames(fit_summary2)),] # creates subset of just regression parameters
+
+# village distance is the first variable after the intercept
+# we plot the response of wildebeest to village distance
+
+
+
+village_beta2<-mean_b2[2,1]
+tourism_beta2<-mean_b2[3,1]
+drainages_beta2<-mean_b2[4,1]
+nitrogen_beta2<-mean_b2[6,1]
+sodium_beta2<-mean_b2[10,1]
+
+plot(villages, exp(village_beta2*villages), type="l", ylim=c(0,3))
+
+plot(tourism, exp(tourism_beta2*tourism), type="l", ylim=c(0,3))
+
+plot(drainages, exp(drainages_beta2*drainages), type="l", ylim=c(0,3))
+
+plot(nitrogen, exp(nitrogen_beta2*nitrogen), type="l", ylim=c(0,3))
+
+plot(sodium, exp(sodium_beta2*sodium), type="l", ylim=c(0,3))
+
+# Thomson Gazelle
+
+sp = 3
+obssp = obs[obs$Animal.sp==sp, ]
+
+stan.data <- list(
+  n_obs = dim(obssp)[1],
+  n_dates = n_dates,
+  n_tcov = 2,
+  area = rep(1.0, n_sites),
+  n_sites = n_sites,
+  site = as.integer(obssp$poly.id),
+  K = dim(X)[2], 
+  X = X,
+  Xt1 = ndvi, # we should add also ndvi
+  Xt2 = rain,
+  date = as.integer(obssp$Month),
+  n_max = 50,
+  p_obs = p[sp]
+)
+
+pars <- c( "betas", "D", "p")
+
+
+fit3 <- stan(file = 'poisson_binomial_dates_pobs_sp.stan',
+             data = stan.data,
+             pars = pars,
+             iter = 1000, thin = 1, chains = 3)
+
+
+
+fit_summary3 <- summary(fit3)$summary 
+
+mean_b3 <- fit_summary3[grepl("betas", rownames(fit_summary3)),] # creates subset of just regression parameters
+
+
+# Species 4 Grant's gazelle
+
+sp = 4
+obssp = obs[obs$Animal.sp==sp, ]
+
+stan.data <- list(
+  n_obs = dim(obssp)[1],
+  n_dates = n_dates,
+  n_tcov = 2,
+  area = rep(1.0, n_sites),
+  n_sites = n_sites,
+  site = as.integer(obssp$poly.id),
+  K = dim(X)[2], 
+  X = X,
+  Xt1 = ndvi, # we should add also ndvi
+  Xt2 = rain,
+  date = as.integer(obssp$Month),
+  n_max = 50,
+  p_obs = p[sp]
+)
+
+pars <- c( "betas", "D", "p")
+
+
+fit4 <- stan(file = 'poisson_binomial_dates_pobs_sp.stan',
+             data = stan.data,
+             pars = pars,
+             iter = 1000, thin = 1, chains = 3)
+
+
+
+fit_summary4 <- summary(fit4)$summary 
+
+mean_b4 <- fit_summary4[grepl("betas", rownames(fit_summary4)),] # creates subset of just regression parameters
+
+# Species 5 Topi
+
+
+sp = 5
+obssp = obs[obs$Animal.sp==sp, ]
+
+stan.data <- list(
+  n_obs = dim(obssp)[1],
+  n_dates = n_dates,
+  n_tcov = 2,
+  area = rep(1.0, n_sites),
+  n_sites = n_sites,
+  site = as.integer(obssp$poly.id),
+  K = dim(X)[2], 
+  X = X,
+  Xt1 = ndvi, # we should add also ndvi
+  Xt2 = rain,
+  date = as.integer(obssp$Month),
+  n_max = 50,
+  p_obs = p[sp]
+)
+
+pars <- c( "betas", "D", "p")
+
+
+fit5 <- stan(file = 'poisson_binomial_dates_pobs_sp.stan',
+             data = stan.data,
+             pars = pars,
+             iter = 1000, thin = 1, chains = 3)
+
+
+
+fit_summary5 <- summary(fit5)$summary 
+
+mean_b5 <- fit_summary5[grepl("betas", rownames(fit_summary5)),] # creates subset of just regression parameters
+
+# species 6 Kongoni
+
+sp = 6
+obssp = obs[obs$Animal.sp==sp, ]
+
+stan.data <- list(
+  n_obs = dim(obssp)[1],
+  n_dates = n_dates,
+  n_tcov = 2,
+  area = rep(1.0, n_sites),
+  n_sites = n_sites,
+  site = as.integer(obssp$poly.id),
+  K = dim(X)[2], 
+  X = X,
+  Xt1 = ndvi, # we should add also ndvi
+  Xt2 = rain,
+  date = as.integer(obssp$Month),
+  n_max = 50,
+  p_obs = p[sp]
+)
+
+pars <- c( "betas", "D", "p")
+
+
+fit6 <- stan(file = 'poisson_binomial_dates_pobs_sp.stan',
+             data = stan.data,
+             pars = pars,
+             iter = 1000, thin = 1, chains = 3)
+
+
+
+fit_summary6 <- summary(fit6)$summary 
+
+mean_b6 <- fit_summary6[grepl("betas", rownames(fit_summary6)),] # creates subset of just regression parameters
+
+
+# species 7 - Impala
+
+sp = 7
+obssp = obs[obs$Animal.sp==sp, ]
+
+stan.data <- list(
+  n_obs = dim(obssp)[1],
+  n_dates = n_dates,
+  n_tcov = 2,
+  area = rep(1.0, n_sites),
+  n_sites = n_sites,
+  site = as.integer(obssp$poly.id),
+  K = dim(X)[2], 
+  X = X,
+  Xt1 = ndvi, # we should add also ndvi
+  Xt2 = rain,
+  date = as.integer(obssp$Month),
+  n_max = 50,
+  p_obs = p[sp]
+)
+
+pars <- c( "betas", "D", "p")
+
+
+fit7 <- stan(file = 'poisson_binomial_dates_pobs_sp.stan',
+             data = stan.data,
+             pars = pars,
+             iter = 1000, thin = 1, chains = 3)
+
+
+
+fit_summary7 <- summary(fit7)$summary 
+
+mean_b7 <- fit_summary7[grepl("betas", rownames(fit_summary7)),] # creates subset of just regression parameters
+
+# Species 8 Waterbuck
+
+sp = 8
+obssp = obs[obs$Animal.sp==sp, ]
+
+stan.data <- list(
+  n_obs = dim(obssp)[1],
+  n_dates = n_dates,
+  n_tcov = 2,
+  area = rep(1.0, n_sites),
+  n_sites = n_sites,
+  site = as.integer(obssp$poly.id),
+  K = dim(X)[2], 
+  X = X,
+  Xt1 = ndvi, # we should add also ndvi
+  Xt2 = rain,
+  date = as.integer(obssp$Month),
+  n_max = 50,
+  p_obs = p[sp]
+)
+
+pars <- c( "betas", "D", "p")
+
+
+fit8 <- stan(file = 'poisson_binomial_dates_pobs_sp.stan',
+             data = stan.data,
+             pars = pars,
+             iter = 1000, thin = 1, chains = 3)
+
+
+
+fit_summary8 <- summary(fit8)$summary 
+
+mean_b8 <- fit_summary8[grepl("betas", rownames(fit_summary8)),] # creates subset of just regression parameters
+
+# species 9 Warthog
+
+sp = 9
+obssp = obs[obs$Animal.sp==sp, ]
+
+stan.data <- list(
+  n_obs = dim(obssp)[1],
+  n_dates = n_dates,
+  n_tcov = 2,
+  area = rep(1.0, n_sites),
+  n_sites = n_sites,
+  site = as.integer(obssp$poly.id),
+  K = dim(X)[2], 
+  X = X,
+  Xt1 = ndvi, # we should add also ndvi
+  Xt2 = rain,
+  date = as.integer(obssp$Month),
+  n_max = 50,
+  p_obs = p[sp]
+)
+
+pars <- c( "betas", "D", "p")
+
+
+fit9 <- stan(file = 'poisson_binomial_dates_pobs_sp.stan',
+             data = stan.data,
+             pars = pars,
+             iter = 1000, thin = 1, chains = 3)
+
+
+
+fit_summary9 <- summary(fit9)$summary 
+
+mean_b9 <- fit_summary9[grepl("betas", rownames(fit_summary9)),] # creates subset of just regression parameters
+
+
+# species 10 - Buffalo
+
+sp = 10
+obssp = obs[obs$Animal.sp==sp, ]
+
+stan.data <- list(
+  n_obs = dim(obssp)[1],
+  n_dates = n_dates,
+  n_tcov = 2,
+  area = rep(1.0, n_sites),
+  n_sites = n_sites,
+  site = as.integer(obssp$poly.id),
+  K = dim(X)[2], 
+  X = X,
+  Xt1 = ndvi, # we should add also ndvi
+  Xt2 = rain,
+  date = as.integer(obssp$Month),
+  n_max = 50,
+  p_obs = p[sp]
+)
+
+pars <- c( "betas", "D", "p")
+
+
+fit10 <- stan(file = 'poisson_binomial_dates_pobs_sp.stan',
+             data = stan.data,
+             pars = pars,
+             iter = 1000, thin = 1, chains = 3)
+
+
+
+fit_summary10 <- summary(fit10)$summary 
+
+mean_b10<- fit_summary10[grepl("betas", rownames(fit_summary10)),] # creates subset of just regression parameters
+
+
+
+
+# Species 11 Giraffe
+
+
+sp = 11
+obssp = obs[obs$Animal.sp==sp, ]
+
+stan.data <- list(
+  n_obs = dim(obssp)[1],
+  n_dates = n_dates,
+  n_tcov = 2,
+  area = rep(1.0, n_sites),
+  n_sites = n_sites,
+  site = as.integer(obssp$poly.id),
+  K = dim(X)[2], 
+  X = X,
+  Xt1 = ndvi, # we should add also ndvi
+  Xt2 = rain,
+  date = as.integer(obssp$Month),
+  n_max = 50,
+  p_obs = p[sp]
+)
+
+pars <- c( "betas", "D", "p")
+
+
+fit11 <- stan(file = 'poisson_binomial_dates_pobs_sp.stan',
+              data = stan.data,
+              pars = pars,
+              iter = 1000, thin = 1, chains = 3)
+
+
+
+fit_summary11 <- summary(fit11)$summary 
+
+mean_b11<- fit_summary11[grepl("betas", rownames(fit_summary11)),] # creates subset of just regression parameters
+
+# Species 12 - Elephant
+
+sp = 12
+obssp = obs[obs$Animal.sp==sp, ]
+
+stan.data <- list(
+  n_obs = dim(obssp)[1],
+  n_dates = n_dates,
+  n_tcov = 2,
+  area = rep(1.0, n_sites),
+  n_sites = n_sites,
+  site = as.integer(obssp$poly.id),
+  K = dim(X)[2], 
+  X = X,
+  Xt1 = ndvi, # we should add also ndvi
+  Xt2 = rain,
+  date = as.integer(obssp$Month),
+  n_max = 50,
+  p_obs = p[sp]
+)
+
+pars <- c( "betas", "D", "p")
+
+
+fit12 <- stan(file = 'poisson_binomial_dates_pobs_sp.stan',
+              data = stan.data,
+              pars = pars,
+              iter = 1000, thin = 1, chains = 3)
+
+
+
+fit_summary12 <- summary(fit12)$summary 
+
+mean_b12<- fit_summary12[grepl("betas", rownames(fit_summary12)),] # creates subset of just regression parameters
+
+# Species 13 Eland
+
+sp = 13
+obssp = obs[obs$Animal.sp==sp, ]
+
+stan.data <- list(
+  n_obs = dim(obssp)[1],
+  n_dates = n_dates,
+  n_tcov = 2,
+  area = rep(1.0, n_sites),
+  n_sites = n_sites,
+  site = as.integer(obssp$poly.id),
+  K = dim(X)[2], 
+  X = X,
+  Xt1 = ndvi, # we should add also ndvi
+  Xt2 = rain,
+  date = as.integer(obssp$Month),
+  n_max = 50,
+  p_obs = p[sp]
+)
+
+pars <- c( "betas", "D", "p")
+
+
+fit13 <- stan(file = 'poisson_binomial_dates_pobs_sp.stan',
+              data = stan.data,
+              pars = pars,
+              iter = 1000, thin = 1, chains = 3)
+
+
+
+fit_summary13 <- summary(fit13)$summary 
+
+mean_b13<- fit_summary13[grepl("betas", rownames(fit_summary13)),] # creates subset of just regression parameters
+
+# Species 16 DikDik
+
+
+sp = 16
+obssp = obs[obs$Animal.sp==sp, ]
+
+stan.data <- list(
+  n_obs = dim(obssp)[1],
+  n_dates = n_dates,
+  n_tcov = 2,
+  area = rep(1.0, n_sites),
+  n_sites = n_sites,
+  site = as.integer(obssp$poly.id),
+  K = dim(X)[2], 
+  X = X,
+  Xt1 = ndvi, # we should add also ndvi
+  Xt2 = rain,
+  date = as.integer(obssp$Month),
+  n_max = 50,
+  p_obs = p[sp]
+)
+
+pars <- c( "betas", "D", "p")
+
+
+fit16 <- stan(file = 'poisson_binomial_dates_pobs_sp.stan',
+              data = stan.data,
+              pars = pars,
+              iter = 1000, thin = 1, chains = 3)
+
+
+
+fit_summary16 <- summary(fit16)$summary 
+
+mean_b16<- fit_summary16[grepl("betas", rownames(fit_summary16)),] # creates subset of just regression parameters
+
+# Make Posterior Table
+
+# Calculate fraction of the posterior same sign as the mean 
+B = extract(fit16, pars = "betas")
+
+f = numeric(ncol(B$betas))
+
+for(i in 1: length(f)){
+  f[i] = length(which(sign(B$betas[,i]) == sign(mean(B$betas[,i]))))/nrow(B$betas)
 }
+f
+
+post1<-f
+post2<-f
+post3<-f
+post4<-f
+post5<-f
+post6<-f
+post7<-f
+post9<-f
+post10<-f
+post11<-f
+post12<-f
+post13<-f
+post16<-f
+
+posteriors.signs<-c(post1,post2,post3,post4,post5,post6,post7,post9,post10,post11,post12,post13,post16)# add one species column and 
+                                                                                                     # names of variables on top
+
+posterior.table<-rbind(mean_b,mean_b2,mean_b3,mean_b4,mean_b5,mean_b6,mean_b7,mean_b9,mean_b10,mean_b11,mean_b12,mean_b13,mean_b16)
+
+full_posterior_table<-cbind(posterior.table,posteriors.signs)
+
+write.csv(full_posterior_table,file="posterior_table.csv")
+
+species.name
 
