@@ -141,8 +141,8 @@ model {
         + Xt2[n,d]*b_m[s,K+2] 
         + log(area[n])
         + r_1_1[site[n]];
-        Ymax[n,s,d] = Y[n,s,d] + 10;
-        //+qpois(0.999,exp(log_lambda[n,s,d])*(1-p[s]),Y[n,s,d]+n_max[s]);
+        Ymax[n,s,d] = Y[n,s,d] + n_max[s];
+        //qpois(0.999,exp(log_lambda[n,s,d])*(1-p[s]),Y[n,s,d]+n_max[s]);
       }
     }
   }

@@ -1,17 +1,14 @@
 library(rstan)
 
-
 # install.packages("cmdstanr", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
 
 library(cmdstanr)
 # install_cmdstan(cores = 2)
 
-
 # set_cmdstan_path("/Users/juanmanuelmorales/cmdstan")
 
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
-
 
 # prepare matrices
 # 
@@ -44,7 +41,7 @@ X[, tmp] = scale(Xo[, tmp])
 # NDVI & Rain
 
 rain <- as.matrix(read.csv("rain_matrix.csv"))
-grass <- as.matrix(read.csv("grass_matrix.csv"))
+grass <- log(as.matrix(read.csv("grass_matrix.csv")))
 ndvi <- as.matrix(read.csv("ndvi_matrix.csv"))
 a_ndvi <- as.matrix(read.csv("anomaly_ndvi_matrix.csv"))
 d_ndvi <- as.matrix(read.csv("Delta_NDVI.csv"))
@@ -121,7 +118,7 @@ n_dates<-ncol(rain)
 # 
 
 stan.data <- list(
-  n_obs = dim(obs)[1],
+  n_obs = nrow(obs),
   n_dates = n_dates,
   n_tcov = 5,
   area = rep(1.0, n_sites),
@@ -135,7 +132,7 @@ stan.data <- list(
   Xt4 = a_ndvi,
   Xt5 = d_ndvi,
   date = as.integer(obs$Month),
-  n_max = rep(20, n_sp),
+  n_max = rep(30, n_sp),
   n_s = as.integer(n_sp),
   n_t =  ncol(Traits),
   TT = Traits,
@@ -150,7 +147,7 @@ stan.data <- list(
 pars <- c( "b_m", "rho",  "Sigma", "z", "Z")
 
 
-init_f <- function () list(b_m = matrix(0, n_sp, n_pars+2))
+init_f <- function () list(b_m = matrix(0, n_sp, n_pars+5))
 
 
 modelName <- "poisson_binomial_dates_pobs_se"
@@ -162,10 +159,12 @@ if (TRUE) {
 
 fit <- mod$sample(
   data = stan.data, 
+  init = init_f,
   chains = 3, 
   parallel_chains = 3,
-  iter_warmup = 5000, iter_sampling = 5000, 
-  thin = 5, 
+  iter_warmup = 1000, 
+  iter_sampling = 1000, 
+  thin = 1, 
   seed = 123)
 
 
