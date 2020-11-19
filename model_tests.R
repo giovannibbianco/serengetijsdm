@@ -110,12 +110,12 @@ n_sp<-dim(C)[1] # 19 species
 n_pars<-ncol(X) # 11
 n_dates<-ncol(rain)
 
-# no spatial autocorrelation and only rain and grass height as time variables
+# no spatial autocorrelation 5 time variables 
 
 stan.data <- list(
   n_obs = nrow(obs),
   n_dates = n_dates,
-  n_tcov = 2,               # number of covariates changing with time
+  n_tcov = 5,               # number of covariates changing with time
   area = rep(1.0, n_sites),
   n_sites = n_sites,
   site = as.integer(obs$poly.id),
@@ -123,9 +123,9 @@ stan.data <- list(
   X = X,
   Xt1 = rain, 
   Xt2 = grass,
-  #Xt3 = ndvi,
-  #Xt4 = a_ndvi,
-  #Xt5 = d_ndvi,
+  Xt3 = ndvi,
+  Xt4 = a_ndvi,
+  Xt5 = d_ndvi,
   date = as.integer(obs$Month),
   n_max = rep(30, n_sp),
   n_s = as.integer(n_sp),
