@@ -44,6 +44,9 @@ data {
   matrix[n_sites, K] X;           // obs-level design matrix 
   matrix[n_sites, n_dates] Xt1;
   matrix[n_sites, n_dates] Xt2;
+  matrix[n_sites, n_dates] Xt3;
+  matrix[n_sites, n_dates] Xt4;
+  matrix[n_sites, n_dates] Xt5;
   matrix[n_s, n_t] TT;            // species-level traits
   matrix[n_s, n_s] C;             // phylogenetic correlation matrix
   vector[n_s] ones;               // vector on 1s
@@ -111,7 +114,10 @@ model {
       for(d in 1:n_dates){
         log_lambda[n,s,d] = dot_product( X[n,] , b_m[s,1:K]) 
         + Xt1[n,d]*b_m[s,K+1] 
-        + Xt2[n,d]*b_m[s,K+2] 
+        + Xt2[n,d]*b_m[s,K+2]
+        + Xt2[n,d]*b_m[s,K+3]
+        + Xt2[n,d]*b_m[s,K+4]
+        + Xt2[n,d]*b_m[s,K+5]
         + log(area[n]);
         Ymax[n,s,d] = Y[n,s,d] + 10;
         //+qpois(0.999,exp(log_lambda[n,s,d])*(1-p[s]),Y[n,s,d]+n_max[s]);
