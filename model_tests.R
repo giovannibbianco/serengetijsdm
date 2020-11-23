@@ -8,6 +8,67 @@ library(rstan)
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
 
+# cmdstanr should make things quicker 
+
+# is not on CRAN
+install.packages("cmdstanr", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+# load it 
+library(cmdstanr)
+# it requires a shell interface called cmdstan
+install_cmdstan(cores = 4)
+check_cmdstan_toolchain(fix = TRUE)
+# need to set path manually because somehow it doesn't work automatically 
+set_cmdstan_path("C:\\Users\\giova\\Documents\\.cmdstanr\\cmdstan-2.25.0")
+cmdstan_version()
+cmdstan_path()
+
+# cmdstan translates a stan program to c++ and creates and executable file making things faster.
+# test it with the example provided 
+
+file <- file.path(cmdstan_path(), "examples", "bernoulli", "bernoulli.stan")
+mod <- cmdstan_model(file) # compiles the model 
+
+mod$print() # prints the stan program
+
+mod$exe_file() # shows the path to the exe file 
+
+# FITTING THE MODEL
+#
+data_list <- list(N = 10, y = c(0,1,0,0,0,0,0,0,0,1))
+
+fit <- mod$sample(
+  data = data_list,
+  seed = 123,
+  chains = 4,
+  parallel_chains = 2,
+  refresh = 500
+)
+
+# trial model works well - cmdstan was installed successfully
+
+
+
+model_script<-("C:\\Users\\giova\\Desktop\\serengetijsdm\\poisson_binomial_dates_pobs.stan")
+mod<-cmdstan_model(model_script)
+mod$print()# prints the original stan program
+mod$exe_file()# shows the path to the executable version of the stan program
+
+# in order to perform mcmc sampling we need a data_list object just like rstan 
+
+fit<-mod$sample(
+  data = stan.data,
+  seed = 123,
+  chains = 3,
+  parallel_chains = 3,
+  iter_warmup = 1000,
+  iter_sampling = 1000,
+  thin=1)
+
+
+
+
+
+
 # read in env data and scale it 
 
 Xo <- as.matrix(read.csv("covariates_final.csv"))
@@ -150,4 +211,4 @@ fit <- stan(file = 'poisson_binomial_dates_pobs.stan',
 
 summary(fit)
 
-# model started at 19:06 - chain 1 went through 100/1000 iterations (Warmup) at 22:30
+# model started at 16:46 19/11
