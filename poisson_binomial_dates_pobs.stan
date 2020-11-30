@@ -139,6 +139,8 @@ model {
   }
 }
 
+
+
 // generated quantities{
 //   int<lower=0> N[n_sites, n_s, n_dates]; 
 //   real<lower=0> D[n_s, n_dates];
