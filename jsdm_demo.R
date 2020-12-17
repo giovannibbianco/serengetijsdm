@@ -132,13 +132,19 @@ pars <- c( "b_m", "rho",  "Sigma", "z", "D")
 
 init_f <- function () list(b_m = matrix(0, n_sp, n_pars))
 
-fit <- stan(file = 'poisson_binomial_pobs.stan',
+fit <- stan(file = 'jsdm_stan_demo_noloop.stan',
             data = stan_dat,
             init = init_f,
             pars = pars,
             iter = 1000, thin = 1, chains = 3)
 
+# run 1 
+# normal demo took 1022 seconds in total
+# noloop demo took 205 seconds
 
+#run 2
+# normal demo took 381
+# noloop 200
 
 
 # some plots
