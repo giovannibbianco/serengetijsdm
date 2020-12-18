@@ -115,8 +115,6 @@ n_sp<-dim(C)[1]
 n_pars<-ncol(X) # 11 parameters including intercept
 n_dates<-ncol(rain)
 
-# 
-
 stan.data <- list(
   n_obs = nrow(obs),
   n_dates = n_dates,
