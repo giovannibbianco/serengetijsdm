@@ -9,6 +9,8 @@
 library(ape) # for phylogenetic data
 library(mvtnorm) # to compute multivariate probabilities
 
+set.seed(1234)
+
 n_sp=20 # number of species
 
 n_env=2 # environmental covariates 
@@ -30,7 +32,6 @@ tree=rtree(n_sp)
 CC=vcv(tree, corr=T) 
 
 
-
 # sort species and re-arrange phylogenetic correlation matrix
 tmp = dimnames(CC)
 ids = as.numeric(as.factor(tmp[[1]]))
@@ -50,7 +51,7 @@ M=TT%*%Z
 
 # define the variation around the betas
 Sigma=diag(n_pars)*0.3
-rho=0.5 # defines the role of phylogenetic relatedness
+rho=0.7 # defines the role of phylogenetic relatedness
 
 betas=rmvnorm(1,mean=as.vector(M),kronecker(Sigma,rho*C+(1-rho)*diag(n_sp)))
 # species responses come from a multivariate distribution where the vector 
@@ -112,11 +113,11 @@ options(mc.cores = parallel::detectCores())
 
 
 stan_dat <- list(
-  n_obs = dim(datos)[1],
+  n_obs = nrow(datos),
   area = rep(1.0, n_sites),
   n_sites = n_sites,
   site = as.integer(datos$site), # (c(s, rep(1:n_sites, each = nzs ))),
-  K = dim(X)[2], 
+  K = ncol(X), 
   X = X,
   n_max = rep(100, n_sp),
   n_s = as.integer(n_sp),
@@ -128,16 +129,32 @@ stan_dat <- list(
   p_obs = p
 )
 
-pars <- c( "b_m", "rho",  "Sigma", "z", "D")
 
-init_f <- function () list(b_m = matrix(0, n_sp, n_pars))
+fit <- stan(file = 'poisson_binomial_pobs.stan',
+            data = stan_dat,
+            #init = init_f,
+            #pars = pars,
+            iter = 1000, thin = 1, chains = 3)
+# 578
 
-fit <- stan(file = 'jsdm_stan_demo_noloop.stan',
+init_f <- function () list(beta_std = matrix(0, n_sp, n_pars))
+
+
+fit_p <- stan(file = 'jsdm_stan_demo_noloop_cholesky_p.stan',
             data = stan_dat,
             init = init_f,
-            pars = pars,
+            #pars = pars,
             iter = 1000, thin = 1, chains = 3)
 
+
+pars <- c( "b_m", "rho",  "Sigma", "z", "D")
+
+init_f <- function () list(beta = matrix(0, n_sp, n_pars))
+
+
+
+
+jsdm_stan_demo_noloop.stan
 # run 1 
 # normal demo took 1022 seconds in total
 # noloop demo took 205 seconds
