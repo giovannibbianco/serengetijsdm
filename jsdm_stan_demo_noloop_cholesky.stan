@@ -63,32 +63,47 @@ transformed data {
 
 
 parameters {
-  cholesky_factor_corr[K] L_Omega;           // correlation matrix for var-covar of betas
-  vector<lower=0>[K] tau;         // scales for the variance covariance of betas
+  cholesky_factor_corr[K] L_Omega;
+  vector<lower=0>[K] tau;
+  //matrix[n_s, K] beta;
+       // scales for the variance covariance of betas
+//  matrix[n_s, K] beta_std;
+  matrix[n_t, K] Z;
   vector[n_s * K] betas;
   real<lower=0,upper=1> rho;      // correlation between phylogeny and betas
-  vector[n_t * K] z;              // coeffs for traits
+  // vector[n_t * K] z;              // coeffs for traits
   real<lower=0,upper=1> p[n_s];   // detection probability
 }
 
 transformed parameters { 
   matrix[K, K] L_Sigma = diag_pre_multiply(tau,L_Omega);
-  matrix[n_s*K, n_s*K] L_S = kronecker(L_Sigma, cholesky_decompose(rho * C + diag_matrix(rep_vector(1-rho,K))));
-  matrix[n_t, K] Z = to_matrix(z, n_t, K);    
-  vector[n_s * K] m = to_vector(TT * Z);        // mean of coeffs
+  matrix[n_s*K, n_s*K] L_S = kronecker(L_Sigma,
+          cholesky_decompose(rho * C + diag_matrix(rep_vector(1-rho, n_s))) );
+          
+  //matrix[K, K] L_Sigma = diag_pre_multiply(tau, L_Omega);
+  //matrix[n_s, n_s] L_phylo = cholesky_decompose(
+  //           rho * C + diag_matrix(rep_vector(1 - rho, K)));
+ 
+ // matrix[n_t, K] Z = to_matrix(z, n_t, K);    
+  //matrix[n_s,  K] m = TT * Z;        // mean of coeffs
+  vector[n_s * K] m = to_vector(TT * Z); 
   matrix[n_s, K] b_m = to_matrix(betas, n_s, K);  // coeffs
+  //matrix[n_s, K] beta = m + L_phylo * beta_std * L_Sigma'; // Matrix Normal NCP
 } 
 
 model {
+
   matrix[n_sites, n_s] log_lambda;
   int Ymax[n_sites, n_s];
   // priors
   // p ~ beta(2,2);
   L_Omega ~ lkj_corr_cholesky(2);
-  tau ~ student_t(3,0,10); // cauchy(0, 2.5); // lognormal()
+  tau ~ student_t(3,0,10); 
   betas ~ multi_normal_cholesky(m, L_S);
+  //to_vector(beta_std) ~ std_normal();
+  to_vector(Z) ~ normal(0, 2); 
+  
   //rho ~ beta(2,2);
-  z ~ normal(0,2);
   
   // mix prior on rho
   //target += log_sum_exp(log(0.5) +  beta_lpdf(rho|1, 10), log(0.5) +  beta_lpdf(rho|2,2));
