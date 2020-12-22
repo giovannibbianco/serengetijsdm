@@ -43,7 +43,7 @@ data {
   matrix[n_sites, K] X;                 // obs-level design matrix 
   matrix[n_s, n_t] TT;            // species-level traits
   matrix[n_s, n_s] C;             // phylogenetic correlation matrix
-  vector[n_s] ones;               // vector on 1s
+  // vector[n_s] ones;               // vector on 1s
   int<lower=1> n_max[n_s];        // Upper bound of population size per spp
   real<lower=0,upper=1> p_obs[n_s];
 }
@@ -63,17 +63,13 @@ transformed data {
   }
 }
 
-
 parameters {
   cholesky_factor_corr[K] L_Omega;
   vector<lower=0>[K] tau;
-  //matrix[n_s, K] beta;
-       // scales for the variance covariance of betas
-//  matrix[n_s, K] beta_std;
+
   matrix[n_t, K] Z;
   vector[n_s * K] betas;
   real<lower=0,upper=1> rho;      // correlation between phylogeny and betas
-  // vector[n_t * K] z;              // coeffs for traits
   real<lower=0,upper=1> p[n_s];   // detection probability
 }
 
