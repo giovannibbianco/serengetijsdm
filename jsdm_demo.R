@@ -132,7 +132,7 @@ pars <- c( "b_m", "rho",  "Sigma", "z", "D")
 
 init_f <- function () list(b_m = matrix(0, n_sp, n_pars))
 
-fit <- stan(file = 'jsdm_stan_demo_noloop.stan',
+fit <- stan(file = 'jsdm_stan_demo_noloop_cholesky_p.stan',
             data = stan_dat,
             init = init_f,
             pars = pars,
