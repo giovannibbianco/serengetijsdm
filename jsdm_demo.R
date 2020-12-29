@@ -129,6 +129,7 @@ stan_dat <- list(
   p_obs = p
 )
 
+# BASE MODEL
 
 fit <- stan(file = 'poisson_binomial_pobs.stan',
             data = stan_dat,
@@ -137,75 +138,163 @@ fit <- stan(file = 'poisson_binomial_pobs.stan',
             iter = 1000, thin = 1, chains = 3)
 # 578
 
-init_f <- function () list(beta_std = matrix(0, n_sp, n_pars))
+# 738 gio's pc
 
+# NO POISSON-BIN LOOP
 
-<<<<<<< HEAD
-fit <- stan(file = 'jsdm_stan_demo_noloop_cholesky_p.stan',
-=======
-fit_p <- stan(file = 'jsdm_stan_demo_noloop_cholesky_p.stan',
->>>>>>> a6d5b678f46fc0100cefaa4e4535415cf2f82887
+fit_2 <- stan(file = 'jsdm_stan_demo_noloop.stan',
             data = stan_dat,
-            init = init_f,
+            #init = init_f,
             #pars = pars,
             iter = 1000, thin = 1, chains = 3)
+
+# 371 seconds gio's pc 
+
+# PETERSON MODEL
+
+init_f <- function () list(beta_std = matrix(0, n_sp, n_pars))
+
+fit_p <- stan(file = 'jsdm_stan_demo_noloop_cholesky_p.stan',
+              data = stan_dat,
+              init = init_f,
+              #pars = pars,
+              iter = 1000, thin = 1, chains = 3)
+
+
+# 1900 s gio's pc
+
+# NHUURRE MODEL
+
+init_f <- function () list(beta_std = matrix(0, n_sp, n_pars))
+
+fit_3<- stan(file = 'jsdm_stan_demo_noloop_cholesky_n.stan',
+             data = stan_dat,
+             init = init_f,
+             #pars = pars,
+             iter = 1000, thin = 1, chains = 3)
+
+# 400 seconds gio's pc
 
 
 pars <- c( "b_m", "rho",  "Sigma", "z", "D")
 
-init_f <- function () list(beta = matrix(0, n_sp, n_pars))
-
-
-
-
-jsdm_stan_demo_noloop.stan
-# run 1 
-# normal demo took 1022 seconds in total
-# noloop demo took 205 seconds
-
-#run 2
-# normal demo took 381
-# noloop 200
-
 
 # some plots
-fit_summary <- summary(fit)$summary
-op <- par(mfrow = c(1,2))
-hist(fit_summary[,10], main = "R-hat")
-hist(fit_summary[,9], main = "n-eff" )
-par(op)
+fit_summary<-summary(fit)$summary
+fit_summary_2<-summary(fit_2)$summary
+fit_summary_3<-summary(fit_3)$summary
+
+# compare r-hat and effective sample size across models
+
+par(mfrow = c(3,2))
+
+hist(fit_summary[,10], main = "R-hat Std Model")
+hist(fit_summary[,9], main = "n-eff Std Model" )
+
+hist(fit_summary_2[,10], main = "R-hat Noloop")
+hist(fit_summary_2[,9], main = "n-eff Noloop" )
+
+hist(fit_summary_3[,10], main = "R-hat Cholesky Noloop")
+hist(fit_summary_3[,9], main = "n-eff Cholesky Noloop" )
+
+# Phylogenetic signals across models 
+
+par(mfrow = c(3,1))
 
 draws <- extract(fit, pars = "rho")
+draws_2 <- extract(fit_2, pars = "rho")
+draws_3<-extract(fit_3, pars = "rho")
 
-plot(density(draws$rho), main = "")
-abline(v=rho)
+
+plot(density(draws$rho), main="Rho Std Model")
+abline(v=rho, col="red")
+
+plot(density(draws_2$rho), main="Rho Noloop")
+abline(v=rho, col="red")
+
+plot(density(draws_3$rho), main="Rho Cholesky Noloop")
+abline(v=rho, col="red")
+
 
 # plot trait level parameters
+
 zs <- fit_summary[grepl("z", rownames(fit_summary)),]
+zs_2 <- fit_summary_2[grepl("z", rownames(fit_summary_2)),]
+zs_3 <- fit_summary_3[grepl("Z", rownames(fit_summary_3)),] #this model estimates matrix Z directly
+
+
 #plot(c(Z) - zs[,1])
-df <- data.frame(x = 1:dim(zs)[1],
+df<- data.frame(x = 1:dim(zs)[1],
                  tz = c(Z),
                  fz = zs[,1],
                  L = zs[,4],
                  U = zs[,8])
 
-ggplot(df, aes(x = x, y = tz)) +
+
+df_2 <- data.frame(x = 1:dim(zs_2)[1],
+                 tz = c(Z),
+                 fz = zs_2[,1],
+                 L = zs_2[,4],
+                 U = zs_2[,8])
+
+df_3 <- data.frame(x = 1:dim(zs_3)[1],
+                 tz = c(Z),
+                 fz = zs_3[,1],
+                 L = zs_3[,4],
+                 U = zs_3[,8])
+
+par(mfrow = c(3,1))
+
+zplot1<-ggplot(df, aes(x = x, y = tz)) +
   geom_point(size = 3, color="red") +
   geom_point(aes(y = fz), size = 2) +
   geom_linerange(aes(ymin = L, ymax = U)) +
-  theme_classic()
+  theme_classic()+
+  ggtitle("Trait Parameters Std Model")
+
+
+zplot2<-ggplot(df_2, aes(x = x, y = tz)) +
+  geom_point(size = 3, color="red") +
+  geom_point(aes(y = fz), size = 2) +
+  geom_linerange(aes(ymin = L, ymax = U)) +
+  theme_classic()+
+  ggtitle("Trait Parameters Noloop")
+
+
+zplot3<-ggplot(df_3, aes(x = x, y = tz)) +
+  geom_point(size = 3, color="red") +
+  geom_point(aes(y = fz), size = 2) +
+  geom_linerange(aes(ymin = L, ymax = U)) +
+  theme_classic()+
+  ggtitle("Trait Parameters Cholesky Noloop")
+
+library(ggpubr)
+
+ggarrange(zplot1,zplot2,zplot3)
+
 
 
 # plot intercepts and slopes
+
+# parameters estimates 
+
 bs <- fit_summary[grepl("b_m", rownames(fit_summary)),]
+bs_2 <- fit_summary_2[grepl("b_m", rownames(fit_summary_2)),]
+bs_3 <- fit_summary_3[grepl("b_m", rownames(fit_summary_3)),]
 
 nf = layout(matrix(c(1,2,3,4,0,0),3,2,byrow=TRUE), widths=c(1,1), heights=c(1,1,0.1))
+
+# STD MODEL BETA PLOTS
+
+par(mfrow = c(2,2))
+
+
 #layout.show(nf)
 op <- par( mar = c(3, 3, 2, 2) + 0.1, mgp = c(3.5, 1, 0), las = 1, bty = "n", cex = 1.2)
-plot(scale(dgrass), Beta[,2],  ylab = "", xlab = "", main = "intercept", ylim=c(-3,3))
+plot(scale(dgrass), Beta[,2],  ylab = "", xlab = "", main = "intercept std mod", ylim=c(-3,3))
 points(scale(dgrass), bs[seq(1, (n_sp*3) ,by=3) + 1,1], pch = 19, col = 2)
 
-plot(scale(dgrass), Beta[,3], ylab = "", xlab = "", main = "slope", ylim=c(-3,3) )
+plot(scale(dgrass), Beta[,3], ylab = "", xlab = "", main = "slope std mod", ylim=c(-3,3) )
 points(scale(dgrass), bs[seq(1, (n_sp*3) ,by=3) + 2,1], pch = 19, col = 2)
 
 plot(scale(log_bm),Beta[,2], ylab = "", xlab = "", ylim=c(-3,3))
@@ -213,13 +302,79 @@ points(scale(log_bm), bs[seq(1, (n_sp*3) ,by=3) + 1,1], pch = 19, col = 2)
 
 plot(scale(log_bm),Beta[,3], ylab = "", xlab = "", ylim=c(-3,3))
 points(scale(log_bm),  bs[seq(1, (n_sp*3) ,by=3) + 2,1], pch = 19, col = 2)
-mtext("         scaled grass           scaled log body mass", side = 1, line = -2, outer = TRUE, cex=1.3)
-par(mfrow = c(1,1))
+mtext("         scaled grass           scaled log body mass", side = 1, line = -1, outer = TRUE, cex=1.3)
 
-# another plot of coefficients and estimates
+
+# NOLOOP BETA PLOTS 
+
+#layout.show(nf)
+op <- par( mar = c(3, 3, 2, 2) + 0.1, mgp = c(3.5, 1, 0), las = 1, bty = "n", cex = 1.2)
+plot(scale(dgrass), Beta[,2],  ylab = "", xlab = "", main = "intercept noloop", ylim=c(-3,3))
+points(scale(dgrass), bs_2[seq(1, (n_sp*3) ,by=3) + 1,1], pch = 19, col = 2)
+
+plot(scale(dgrass), Beta[,3], ylab = "", xlab = "", main = "slope noloop", ylim=c(-3,3) )
+points(scale(dgrass), bs_2[seq(1, (n_sp*3) ,by=3) + 2,1], pch = 19, col = 2)
+
+plot(scale(log_bm),Beta[,2], ylab = "", xlab = "", ylim=c(-3,3))
+points(scale(log_bm), bs_2[seq(1, (n_sp*3) ,by=3) + 1,1], pch = 19, col = 2)
+
+plot(scale(log_bm),Beta[,3], ylab = "", xlab = "", ylim=c(-3,3))
+points(scale(log_bm),  bs_2[seq(1, (n_sp*3) ,by=3) + 2,1], pch = 19, col = 2)
+mtext("         scaled grass           scaled log body mass", side = 1, line = -1, outer = TRUE, cex=1.3)
+
+
+# NOLOOP CHOLESKY BETA PLOTS 
+op <- par( mar = c(3, 3, 2, 2) + 0.1, mgp = c(3.5, 1, 0), las = 1, bty = "n", cex = 1.2)
+plot(scale(dgrass), Beta[,2],  ylab = "", xlab = "", main = "intercept noloop chol.", ylim=c(-3,3))
+points(scale(dgrass), bs_3[seq(1, (n_sp*3) ,by=3) + 1,1], pch = 19, col = 2)
+
+plot(scale(dgrass), Beta[,3], ylab = "", xlab = "", main = "slope noloop chol.", ylim=c(-3,3) )
+points(scale(dgrass), bs_3[seq(1, (n_sp*3) ,by=3) + 2,1], pch = 19, col = 2)
+
+plot(scale(log_bm),Beta[,2], ylab = "", xlab = "", ylim=c(-3,3))
+points(scale(log_bm), bs_3[seq(1, (n_sp*3) ,by=3) + 1,1], pch = 19, col = 2)
+
+plot(scale(log_bm),Beta[,3], ylab = "", xlab = "", ylim=c(-3,3))
+points(scale(log_bm),  bs_3[seq(1, (n_sp*3) ,by=3) + 2,1], pch = 19, col = 2)
+mtext("         scaled grass           scaled log body mass", side = 1, line = -1, outer = TRUE, cex=1.3)
+
+
+
+
+
+par(mfrow = c(2,2))
+
+# BETAS POSTERIOR VS TRUE VALUES 
+
 plot(c(Beta), 
-     c(bs[seq(1, (n_sp*3) ,by=3) ,1], bs[seq(1, (n_sp*3) ,by=3) + 1,1], bs[seq(1, (n_sp*3) ,by=3) + 2,1]), xlab = "true value", ylab = "posterior mean")
-abline(0,1)
+     c(bs[seq(1, (n_sp*3) ,by=3) ,1],
+       bs[seq(1, (n_sp*3) ,by=3) + 1,1],
+       bs[seq(1, (n_sp*3) ,by=3) + 2,1]), 
+     xlab = "true value", 
+     ylab = "posterior mean",
+     main="Posterior Mean ~ True Values Std Model")
+abline(0,1, col="red")
+
+plot(c(Beta), 
+     c(bs_2[seq(1, (n_sp*3) ,by=3) ,1],
+       bs_2[seq(1, (n_sp*3) ,by=3) + 1,1],
+       bs_2[seq(1, (n_sp*3) ,by=3) + 2,1]), 
+     xlab = "true value", 
+     ylab = "posterior mean",
+     main="Posterior Mean ~ True Values Noloop Model")
+abline(0,1, col="red")
+
+plot(c(Beta), 
+     c(bs_3[seq(1, (n_sp*3) ,by=3) ,1],
+       bs_3[seq(1, (n_sp*3) ,by=3) + 1,1],
+       bs_3[seq(1, (n_sp*3) ,by=3) + 2,1]), 
+     xlab = "true value", 
+     ylab = "posterior mean",
+     main="Posterior Mean ~ True Values Noloop-Cholesky Model")
+abline(0,1, col="red")
+
+
+
 
 # yet another one
 df <- data.frame(x = 1:dim(bs)[1],
@@ -229,14 +384,60 @@ df <- data.frame(x = 1:dim(bs)[1],
                  U =  c(bs[seq(1, (n_sp*3) ,by=3) ,8], bs[seq(1, (n_sp*3) ,by=3) + 1,8], bs[seq(1, (n_sp*3) ,by=3) + 2,8])
 )
 
-ggplot(df, aes(x = x, y = tb)) +
+df_2<- data.frame(x = 1:dim(bs_2)[1],
+                  tb = c(Beta),
+                  fb = c(bs_2[seq(1, (n_sp*3) ,by=3) ,1], bs_2[seq(1, (n_sp*3) ,by=3) + 1,1], bs_2[seq(1, (n_sp*3) ,by=3) + 2,1]),
+                  L =  c(bs_2[seq(1, (n_sp*3) ,by=3) ,4], bs_2[seq(1, (n_sp*3) ,by=3) + 1,4], bs_2[seq(1, (n_sp*3) ,by=3) + 2,4]),
+                  U =  c(bs_2[seq(1, (n_sp*3) ,by=3) ,8], bs_2[seq(1, (n_sp*3) ,by=3) + 1,8], bs_2[seq(1, (n_sp*3) ,by=3) + 2,8])
+)
+
+df_3<- data.frame(x = 1:dim(bs_3)[1],
+                  tb = c(Beta),
+                  fb = c(bs_3[seq(1, (n_sp*3) ,by=3) ,1], bs_3[seq(1, (n_sp*3) ,by=3) + 1,1], bs_3[seq(1, (n_sp*3) ,by=3) + 2,1]),
+                  L =  c(bs_3[seq(1, (n_sp*3) ,by=3) ,4], bs_3[seq(1, (n_sp*3) ,by=3) + 1,4], bs_3[seq(1, (n_sp*3) ,by=3) + 2,4]),
+                  U =  c(bs_3[seq(1, (n_sp*3) ,by=3) ,8], bs_3[seq(1, (n_sp*3) ,by=3) + 1,8], bs_3[seq(1, (n_sp*3) ,by=3) + 2,8])
+)
+
+# true vs fitted betas with credible intervals 
+
+tbfb1<-ggplot(df, aes(x = x, y = tb)) +
   geom_point(size = 2, color="red") +
   geom_point(aes(y = fb), size = 1) +
   geom_linerange(aes(ymin = L, ymax = U)) +
+  ggtitle("True vs Estimated ± CI (Std Mod)")+
   theme_classic()
+
+
+
+tbfb2<-ggplot(df_2, aes(x = x, y = tb)) +
+  geom_point(size = 2, color="red") +
+  geom_point(aes(y = fb), size = 1) +
+  geom_linerange(aes(ymin = L, ymax = U)) +
+  ggtitle("True vs Estimated ± CI (Noloop Mod)")+
+  theme_classic()
+
+
+
+tbfb3<-ggplot(df_3, aes(x = x, y = tb)) +
+  geom_point(size = 2, color="red") +
+  geom_point(aes(y = fb), size = 1) +
+  geom_linerange(aes(ymin = L, ymax = U)) +
+  ggtitle("True vs Estimated ± CI (Noloop-Cholesky Mod)")+
+  theme_classic()
+
+
+
+ggarrange(tbfb1,tbfb2,tbfb3)
+
+
 
 # plot density estimates
 D <- fit_summary[grepl("D", rownames(fit_summary)),]
+D2 <- fit_summary_2[grepl("D", rownames(fit_summary_2)),]
+D3 <- fit_summary_3[grepl("D", rownames(fit_summary_3)),]
+
+
+
 
 df <- data.frame(x = 1:dim(D)[1],
                  td = colSums(N)/n_sites,
@@ -245,9 +446,42 @@ df <- data.frame(x = 1:dim(D)[1],
                  U =  D[,8]
 )
 
-ggplot(df, aes(x = x, y = td)) +
+
+df_2 <- data.frame(x = 1:dim(D2)[1],
+                 td = colSums(N)/n_sites,
+                 fd = D2[,1],
+                 L =  D2[,4],
+                 U =  D2[,8]
+)
+
+df_3 <- data.frame(x = 1:dim(D3)[1],
+                 td = colSums(N)/n_sites,
+                 fd = D3[,1],
+                 L =  D3[,4],
+                 U =  D3[,8]
+)
+
+
+
+dplot<-ggplot(df, aes(x = x, y = td)) +
   geom_point(size = 2, color="red") +
   geom_point(aes(y = fd), size = 1) +
   geom_linerange(aes(ymin = L, ymax = U)) +
+  ggtitle("Posterior density Std Model")+
   theme_classic()
 
+dplot2<-ggplot(df_2, aes(x = x, y = td)) +
+  geom_point(size = 2, color="red") +
+  geom_point(aes(y = fd), size = 1) +
+  geom_linerange(aes(ymin = L, ymax = U)) +
+  ggtitle("Posterior density Noloop Model")+
+  theme_classic()
+
+dplot3<-ggplot(df_3, aes(x = x, y = td)) +
+  geom_point(size = 2, color="red") +
+  geom_point(aes(y = fd), size = 1) +
+  geom_linerange(aes(ymin = L, ymax = U)) +
+  ggtitle("Posterior density Noloop-Cholesky Model")+
+  theme_classic()
+
+ggarrange(dplot,dplot2,dplot3)
