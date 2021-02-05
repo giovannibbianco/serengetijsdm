@@ -9,7 +9,17 @@ varnames<-c(colnames(Xo),"rain","grass","ndvi","a_ndvi","d_ndvi")
 TT<-read.csv("TT_matrix.csv")
 names(TT)
 
-# select different coefs
+# select coefs for each of the 5 traits (Intercept (Grazer), Body Mass, Water Dependence, Browser Correction, Mix Corr)
+
+#bodymass
+
+bodymass_coefs<-as.data.frame(traits_effects[15:28,])
+waterdep_coefs<-as.data.frame(traits_effects[29:42,])
+
+
+
+
+# select different coefs for environmental variables 
 
 intercepts<-as.data.frame(responses[seq(length.out=19, from=1, by=14),])
 village_coefs<-as.data.frame(responses[seq(length.out=19, from=2, by=14),])
@@ -293,6 +303,45 @@ ggplot(dndvi_coefs,aes(x=sp.names,y=mean))+
   ggtitle("Species Responses to NDVI")+
   ylab("Parameter estimate")+
   ylim(-100,100)+
+  theme(axis.text.x=element_text(angle=45, hjust=1))+
+  theme(axis.line = element_line(colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+
+# TRAITS PLOTS 
+
+#bodymass plot
+ggplot(bodymass_coefs,aes(x=varnames,y=mean))+
+  geom_point(size=2)+
+  geom_hline(yintercept = 0, colour="grey",linetype=2, lwd=1)+
+  geom_errorbar(ymin=as.numeric(bodymass_coefs[,4]),
+                ymax=as.numeric(bodymass_coefs[,8]),width=0.4, size=0.8)+
+  theme_bw()+
+  xlab("Environmental Covariate")+
+  ggtitle("Effects of bodymass on responses to landscape")+
+  ylab("Parameter estimate")+
+  ylim(-1,1)+
+  theme(axis.text.x=element_text(angle=45, hjust=1))+
+  theme(axis.line = element_line(colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+
+# water dependence plot 
+
+ggplot(waterdep_coefs,aes(x=varnames,y=mean))+
+  geom_point(size=2)+
+  geom_hline(yintercept = 0, colour="grey",linetype=2, lwd=1)+
+  geom_errorbar(ymin=as.numeric(waterdep_coefs[,4]),
+                ymax=as.numeric(waterdep_coefs[,8]),width=0.4, size=0.8)+
+  theme_bw()+
+  xlab("Environmental Covariate")+
+  ggtitle("Effects of water dependence on responses to landscape")+
+  ylab("Parameter estimate")+
+  ylim(-1,1)+
   theme(axis.text.x=element_text(angle=45, hjust=1))+
   theme(axis.line = element_line(colour = "black"),
         panel.grid.major = element_blank(),
