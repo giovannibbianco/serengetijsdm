@@ -142,6 +142,9 @@ model {
         log_lambda[n,s,d] = dot_product( X[n,] , b_m[s,1:K]) 
         + Xt1[n,d]*b_m[s,K+1] 
         + Xt2[n,d]*b_m[s,K+2] 
+        + Xt3[n,d]*b_m[s,K+3] 
+        + Xt4[n,d]*b_m[s,K+4] 
+        + Xt5[n,d]*b_m[s,K+5] 
         + log(area[n])
         + r_1_1[site[n]];
         Ymax[n,s,d] = Y[n,s,d] + 30;
