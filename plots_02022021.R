@@ -9,12 +9,15 @@ varnames<-c(colnames(Xo),"rain","grass","ndvi","a_ndvi","d_ndvi")
 TT<-read.csv("TT_matrix.csv")
 names(TT)
 
-# select coefs for each of the 5 traits (Intercept (Grazer), Body Mass, Water Dependence, Browser Correction, Mix Corr)
+# select coefs for each of the 5 traits (Intercept (Grazer), Body Mass, Water Dependence,
+# Browser Correction, Mixed feeders Corr)
 
 #bodymass
 
 bodymass_coefs<-as.data.frame(traits_effects[15:28,])
 waterdep_coefs<-as.data.frame(traits_effects[29:42,])
+browser_coefs<-as.data.frame(traits_effects[43:56,])
+mixedfeed_coefs<-as.data.frame(traits_effects[57:70,])
 
 
 
@@ -89,7 +92,7 @@ ggplot(tourism_coefs, aes(x=sp.names,y=mean))+
   xlab("Herbivore Species")+
   ggtitle("Species Responses to Tourism")+
   ylab("Parameter estimate")+
-  ylim(-1,1.5)+
+  ylim(-1,1)+
   theme(axis.text.x=element_text(angle=45, hjust=1))+
   theme(axis.line = element_line(colour = "black"),
         panel.grid.major = element_blank(),
@@ -304,7 +307,8 @@ ggplot(dndvi_coefs,aes(x=sp.names,y=mean))+
   ylab("Parameter estimate")+
   ylim(-100,100)+
   theme(axis.text.x=element_text(angle=45, hjust=1))+
-  theme(axis.line = element_line(colour = "black"),
+
+    theme(axis.line = element_line(colour = "black"),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.border = element_blank(),
@@ -341,10 +345,12 @@ ggplot(waterdep_coefs,aes(x=varnames,y=mean))+
   xlab("Environmental Covariate")+
   ggtitle("Effects of water dependence on responses to landscape")+
   ylab("Parameter estimate")+
-  ylim(-1,1)+
+  ylim(-2,2)+
   theme(axis.text.x=element_text(angle=45, hjust=1))+
   theme(axis.line = element_line(colour = "black"),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.border = element_blank(),
         panel.background = element_blank())
+
+# 
